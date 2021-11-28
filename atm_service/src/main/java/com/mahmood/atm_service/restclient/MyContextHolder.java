@@ -1,9 +1,20 @@
 package com.mahmood.atm_service.restclient;
 
+import model.CardDto;
+
 public class MyContextHolder {
     private static MyContextHolder ourInstance = new MyContextHolder();
 
     private String token;
+    private CardDto card;
+
+    public CardDto getCard() {
+        return card;
+    }
+
+    public void setCard(CardDto card) {
+        this.card = card;
+    }
 
     public String getToken() {
         return token;

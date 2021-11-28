@@ -1,7 +1,6 @@
 package com.mahmood.atm_service.controller;
 
 import com.mahmood.atm_service.restclient.MyContextHolder;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import enums.CardStatus;
 import model.CardDto;
 import model.TransactionModel;
@@ -25,9 +24,8 @@ public class AtmApi {
 
     @Value("${bankServiceUrl}")
     private String url;
-    private CardDto card;
 
-    @HystrixCommand(fallbackMethod = "login")
+    //    @HystrixCommand(fallbackMethod = "validateCardNumber")
     @PostMapping("withdraw")
     public TransactionResult withdraw(@RequestBody TransactionModel transactionModel) {
         return restTemplate.postForObject(url + "/account/withdraw", transactionModel, TransactionResult.class);
@@ -45,23 +43,21 @@ public class AtmApi {
 
     @GetMapping("/card/validateCardNumber/{cardNumber}")
     public CardStatus validateCardNumber(@PathVariable @NotNull String cardNumber) {
-        card = restTemplate.getForObject(url + "/card/validateCardNumber/" + cardNumber, CardDto.class);
-        return card.getCardStatus();
+        MyContextHolder.getInstance().setCard(restTemplate.getForObject(url + "/card/validateCardNumber/" + cardNumber, CardDto.class));
+        return MyContextHolder.getInstance().getCard().getCardStatus();
     }
 
     @PostMapping("/card/login/{authenticationValue}")
     public void login(@PathVariable @NotNull String authenticationValue, HttpServletRequest request) {
-        card = new CardDto();
-
-        if (card.getCardStatus().equals(CardStatus.BLOCKED) || card.getNumberOfLoginTries() == 3) {
+        if (MyContextHolder.getInstance().getCard().getCardStatus().equals(CardStatus.BLOCKED) || MyContextHolder.getInstance().getCard().getNumberOfLoginTries() == 3) {
             throw new RuntimeException("Card is BLOCKED!");
         }
-        card.setAuthenticationValue(authenticationValue);
+        MyContextHolder.getInstance().getCard().setAuthenticationValue(authenticationValue);
 
-        HttpEntity<String> response = restTemplate.exchange(url + "/card/login", HttpMethod.POST, new HttpEntity<>(card), String.class);
+        HttpEntity<String> response = restTemplate.exchange(url + "/card/login", HttpMethod.POST, new HttpEntity<>(MyContextHolder.getInstance().getCard()), String.class);
         List<String> authorization = response.getHeaders().get("Authorization");
         MyContextHolder.getInstance().setToken(authorization.size() > 0 ? authorization.get(0) : null);
-        card = new CardDto();
+        MyContextHolder.getInstance().setCard(new CardDto());
     }
 
 

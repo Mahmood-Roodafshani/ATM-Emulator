@@ -21,13 +21,38 @@ public class LogAspect {
 
     @AfterReturning(pointcut = "execution(* com.mahmood.bank_service.service.impl.AccountServiceImpl.withdraw(..)) && args(transactionModel,..)",
             returning = "retVal")
-    public void logExecutionTime(JoinPoint joinPoint, TransactionModel transactionModel, TransactionResult retVal) throws Throwable {
-
+    public void logExecutionTimeWithdraw(JoinPoint joinPoint, TransactionModel transactionModel, TransactionResult retVal) throws Throwable {
 
         LogHistory logHistory = new LogHistory();
         logHistory.setCardNumber(transactionModel.getCardNumber());
         logHistory.setOperationType(OperationType.WITHDRAW);
         logHistory.setAmount(transactionModel.getAmount());
+        logHistory.setDateTime(new Date());
+        logHistory.setOperationStatus(retVal.getResultCode());
+        logHistoryRepository.save(logHistory);
+    }
+
+    @AfterReturning(pointcut = "execution(* com.mahmood.bank_service.service.impl.AccountServiceImpl.deposit(..)) && args(transactionModel,..)",
+            returning = "retVal")
+    public void logExecutionTimeDeposit(JoinPoint joinPoint, TransactionModel transactionModel, TransactionResult retVal) throws Throwable {
+
+        LogHistory logHistory = new LogHistory();
+        logHistory.setCardNumber(transactionModel.getCardNumber());
+        logHistory.setOperationType(OperationType.DEPOSIT);
+        logHistory.setAmount(transactionModel.getAmount());
+        logHistory.setDateTime(new Date());
+        logHistory.setOperationStatus(retVal.getResultCode());
+        logHistoryRepository.save(logHistory);
+    }
+
+    @AfterReturning(pointcut = "execution(* com.mahmood.bank_service.service.impl.AccountServiceImpl.checkBalance(..)) && args(accountNumber,..)",
+            returning = "retVal")
+    public void logExecutionTimeCheckBalance(JoinPoint joinPoint, String accountNumber, TransactionResult retVal) throws Throwable {
+
+        LogHistory logHistory = new LogHistory();
+        logHistory.setCardNumber(accountNumber);
+        logHistory.setOperationType(OperationType.CHECK_BALANCE);
+        logHistory.setAmount(null);
         logHistory.setDateTime(new Date());
         logHistory.setOperationStatus(retVal.getResultCode());
         logHistoryRepository.save(logHistory);

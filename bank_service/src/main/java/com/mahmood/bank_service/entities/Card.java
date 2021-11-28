@@ -29,7 +29,9 @@ public class Card implements Serializable {
     private Account account;
     @Pattern(regexp = "[1-3]{1}")
     private byte numberOfLoginTries;
+    @NotNull
     private AuthMethod authMethod;
+    @NotNull
     private String authValue;
     @OneToMany(mappedBy = "card", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Token> tokens;

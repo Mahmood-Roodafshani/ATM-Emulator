@@ -25,22 +25,6 @@ public class AtmApi {
     @Value("${bankServiceUrl}")
     private String url;
 
-    //    @HystrixCommand(fallbackMethod = "validateCardNumber")
-    @PostMapping("withdraw")
-    public TransactionResult withdraw(@RequestBody TransactionModel transactionModel) {
-        return restTemplate.postForObject(url + "/account/withdraw", transactionModel, TransactionResult.class);
-    }
-
-    @PostMapping("deposit")
-    public TransactionResult deposit(@RequestBody TransactionModel transactionModel) {
-        return restTemplate.postForObject(url + "/account/deposit", transactionModel, TransactionResult.class);
-    }
-
-    @GetMapping("balance/{cardNumber}")
-    public TransactionResult checkBalance(@PathVariable String cardNumber) {
-        return restTemplate.getForObject(url + "/account/balance/" + cardNumber, TransactionResult.class);
-    }
-
     @GetMapping("/card/validateCardNumber/{cardNumber}")
     public CardStatus validateCardNumber(@PathVariable @NotNull String cardNumber) {
         MyContextHolder.getInstance().setCard(restTemplate.getForObject(url + "/card/validateCardNumber/" + cardNumber, CardDto.class));
@@ -60,5 +44,21 @@ public class AtmApi {
         MyContextHolder.getInstance().setCard(new CardDto());
     }
 
+
+    //    @HystrixCommand(fallbackMethod = "validateCardNumber")
+    @PostMapping("withdraw")
+    public TransactionResult withdraw(@RequestBody TransactionModel transactionModel) {
+        return restTemplate.postForObject(url + "/account/withdraw", transactionModel, TransactionResult.class);
+    }
+
+    @PostMapping("deposit")
+    public TransactionResult deposit(@RequestBody TransactionModel transactionModel) {
+        return restTemplate.postForObject(url + "/account/deposit", transactionModel, TransactionResult.class);
+    }
+
+    @GetMapping("balance/{cardNumber}")
+    public TransactionResult checkBalance(@PathVariable String cardNumber) {
+        return restTemplate.getForObject(url + "/account/balance/" + cardNumber, TransactionResult.class);
+    }
 
 }

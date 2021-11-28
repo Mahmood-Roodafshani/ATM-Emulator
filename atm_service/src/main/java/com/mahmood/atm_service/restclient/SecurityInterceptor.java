@@ -1,4 +1,4 @@
-package com.mahmood.atm_service;
+package com.mahmood.atm_service.restclient;
 
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -9,20 +9,12 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class SecurityInterceptor implements ClientHttpRequestInterceptor {
-    private String token;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        if (Objects.nonNull(getToken()))
-            request.getHeaders().add("Authorization", getToken());
+        MyContextHolder instance = MyContextHolder.getInstance();
+        if (Objects.nonNull(instance.getToken()))
+            request.getHeaders().add("Authorization", instance.getToken());
         return execution.execute(request, body);
     }
 }

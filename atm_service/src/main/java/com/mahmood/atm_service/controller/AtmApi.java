@@ -1,6 +1,7 @@
 package com.mahmood.atm_service.controller;
 
-import com.mahmood.atm_service.SecurityInterceptor;
+import com.mahmood.atm_service.restclient.MyContextHolder;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import enums.CardStatus;
 import model.CardDto;
 import model.TransactionModel;
@@ -9,33 +10,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
 public class AtmApi {
     @Autowired
     private RestTemplate restTemplate;
-    @Autowired
-    private SecurityInterceptor securityInterceptor;
 
     @Value("${bankServiceUrl}")
     private String url;
     private CardDto card;
-//    @HystrixCommand(fallbackMethod = "logIn")
 
+    @HystrixCommand(fallbackMethod = "login")
     @PostMapping("withdraw")
-    public TransactionResult withdraw(TransactionModel transactionModel) {
+    public TransactionResult withdraw(@RequestBody TransactionModel transactionModel) {
         return restTemplate.postForObject(url + "/account/withdraw", transactionModel, TransactionResult.class);
     }
 
     @PostMapping("deposit")
-    public TransactionResult deposit(TransactionModel transactionModel) {
+    public TransactionResult deposit(@RequestBody TransactionModel transactionModel) {
         return restTemplate.postForObject(url + "/account/deposit", transactionModel, TransactionResult.class);
     }
 
@@ -51,37 +50,19 @@ public class AtmApi {
     }
 
     @PostMapping("/card/login/{authenticationValue}")
-    public TransactionResult login(@PathVariable @NotNull String authenticationValue) {
+    public void login(@PathVariable @NotNull String authenticationValue, HttpServletRequest request) {
         card = new CardDto();
 
-
-        if (card.getNumberOfLoginTries() == 3) {
+        if (card.getCardStatus().equals(CardStatus.BLOCKED) || card.getNumberOfLoginTries() == 3) {
             throw new RuntimeException("Card is BLOCKED!");
         }
         card.setAuthenticationValue(authenticationValue);
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
-        params.add("username", "john");
-        params.add("password", "123");
-
-
-        card.setCardNumber("1");
-        card.setAuthenticationValue("1");
 
         HttpEntity<String> response = restTemplate.exchange(url + "/card/login", HttpMethod.POST, new HttpEntity<>(card), String.class);
-        String resultString = response.getBody();
-        restTemplate.
-                securityInterceptor response.getHeaders().get("Authorization");
-        TransactionResult transactionResult = restTemplate.postForObject(url + "/card/login", card, TransactionResult.class);
+        List<String> authorization = response.getHeaders().get("Authorization");
+        MyContextHolder.getInstance().setToken(authorization.size() > 0 ? authorization.get(0) : null);
         card = new CardDto();
-        return transactionResult;
     }
 
-    @PostMapping("test")
-    public void checkBalance() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
-        params.add("username", "john");
-        params.add("password", "123");
-        restTemplate.postForObject("http://localhost:8080/login", params, Object.class);
-    }
 
 }

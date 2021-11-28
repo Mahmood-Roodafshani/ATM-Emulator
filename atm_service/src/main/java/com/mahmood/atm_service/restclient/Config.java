@@ -1,4 +1,4 @@
-package com.mahmood.atm_service;
+package com.mahmood.atm_service.restclient;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;

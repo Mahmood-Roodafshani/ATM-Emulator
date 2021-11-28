@@ -2,6 +2,7 @@ package com.mahmood.bank_service.controller;
 
 import com.mahmood.bank_service.service.AccountService;
 import com.mahmood.bank_service.service.CardService;
+import enums.AuthMethod;
 import lombok.RequiredArgsConstructor;
 import model.CardDto;
 import model.TransactionModel;
@@ -40,14 +41,9 @@ public class BankApi {
         return ResponseEntity.ok(cardService.validateCardNumber(cardNumber));
     }
 
-//    @PostMapping("/card/login")
-//    public ResponseEntity<TransactionResult> login(@RequestBody CardDto model) {
-//        return ResponseEntity.ok(/*accountService.deposit(model)*/);
-//    }
-
 //    @PostMapping("/card/chooseAuthMethod")
 //    public void chooseAuthMethod(@RequestBody AuthMethod authMethod){
-//        cardService.checkBalance(cardNumber)
+//        cardService.setAuthMethod(cardNumber)
 //        ResponseEntity.ok();
 //    }
 }

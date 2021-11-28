@@ -19,9 +19,9 @@ public class CardServiceImpl implements CardService {
     public CardDto validateCardNumber(String cardNumber) {
         Card card = cardRepository.findByCardNumber(cardNumber);
         if (Objects.isNull(card)) {
-            // TODO Mahmood create proper Exception          return new TransactionResult(OperationStatus.FAILED, "Card not found.");
+            throw new RuntimeException("Invalid card number");
         }
         //TODO add MapStruct
-        return new CardDto(card.getCardNumber(), card.getCardStatus(), card.getNumberOfLoginTries(), card.getAuthMethod(),null);
+        return new CardDto(card.getCardNumber(), card.getCardStatus(), card.getNumberOfLoginTries(), card.getAuthMethod(), null);
     }
 }

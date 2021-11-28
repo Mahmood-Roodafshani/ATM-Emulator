@@ -2,9 +2,9 @@ package com.mahmood.bank_service.entities;
 
 import enums.AuthMethod;
 import enums.CardStatus;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -18,16 +18,15 @@ public class Card implements Serializable {
     @Column(name = "card_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Pattern(regexp = "[\\d]{16}")
-    @NotNull
-    @UniqueElements
+    @Pattern(regexp = "[\\d]")
+    @Column(unique = true, nullable = false, length = 16)
     private String cardNumber;
     @NotNull
     private CardStatus cardStatus;
     @ManyToOne
     @JoinColumn(name = "account_id", insertable = false, updatable = false, nullable = false)
     private Account account;
-    @Pattern(regexp = "[1-3]{1}")
+    @Max(3)
     private byte numberOfLoginTries;
     @NotNull
     private AuthMethod authMethod;
